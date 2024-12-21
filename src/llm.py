@@ -54,6 +54,8 @@ global_chat_history = [{"System": context}]
 
 client = genai.Client()
 chat = client.chats.create(model="gemini-1.5-flash")
+game_start = chat.send_message(str(global_chat_history))
+print(game_start.text)
 while 1:
     user_input = input("You: ")
     global_chat_history.append({"User": user_input})
