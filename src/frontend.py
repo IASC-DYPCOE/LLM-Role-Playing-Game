@@ -78,13 +78,14 @@ st.title("🎲 DnD Adventure")
 if st.button("Start New Game"):
     with st.spinner("Starting a new adventure..."):
         game_response = start_game()
-        if "content" in game_response:
-            st.session_state.messages = [
-                {"role": "system", "content": game_response["content"]}
-            ]
-            st.success("The game has started! Let your adventure begin.")
-        else:
-            st.error("Failed to start the game. Please try again.")
+        # if "content" in game_response:
+        #     st.session_state.messages = [
+        #         {"role": "system", "content": game_response["content"]}
+        #     ]
+        #     st.success("The game has started! Let your adventure begin.")
+        # else:
+        #     st.error("Failed to start the game. Please try again.")
+        st.write(game_response)
 
 with st.container():
     for msg in st.session_state.messages:

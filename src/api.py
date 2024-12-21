@@ -21,7 +21,9 @@ async def start(request: Request, Response: Response):
         context = file.read().replace("\n", "")
     global_chat_history = [{"System": context}]
     duengeon_master.set_global_chat_history(global_chat_history)
-    return {"content": "New game started!"}
+    response = duengeon_master.inference()
+    response = extract_json(response)
+    return JSONResponse(content=response)
 
 
 @app.post("/dnd/play")
