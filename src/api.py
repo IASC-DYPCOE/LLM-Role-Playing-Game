@@ -1,19 +1,20 @@
-from utils import extract_json
-from fastapi import FastAPI, Request, Response
-from llm import DuengeonMaster
+from .utils import extract_json
+from fastapi import FastAPI, Request, Response, Form
+from .llm import DuengeonMaster
 
 app = FastAPI()
 
 context = ""
-with open("./prompt.xml", "r") as file:
+with open("/home/capybara/code/ml/LLM-Role-Playing-Game/src/prompt.xml", "r") as file:
     context += file.read().replace("\n", "")
 global_chat_history = [{"System": context}]
 duengeon_master = DuengeonMaster(global_chat_history)
 
 
 @app.get("/dnd")
-def home(request: Request, Response: Response):
-    input_text = request.form["input_text"]
+async def home(request: Request, Response: Response, form_input_text: str = Form()):
+    input_text = form_input_text
+    print(input_text)
     response = duengeon_master.inference(input_text)
-    # response = extract_json(response)
+    response = extract_json(response).replace("\n", "")
     return response

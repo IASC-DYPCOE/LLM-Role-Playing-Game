@@ -2,17 +2,12 @@ import re
 
 
 def extract_json(input_text):
-    """
-    Extract JSON data from the input text.
+    json_pattern = r"(\{[\s\S]*\})"
 
-    Args:
-        input_text (str): The text to search for JSON data.
+    match = re.search(json_pattern, input_text)
 
-    Returns:
-        list: A list of JSON data strings.
-    """
-    json_pattern = r"json\n(.*?)\n"
-
-    matches = re.findall(json_pattern, input_text, re.DOTALL)
-
-    return matches
+    if match:
+        json_content = match.group(1)
+        return json_content
+    else:
+        print("No JSON content found")
