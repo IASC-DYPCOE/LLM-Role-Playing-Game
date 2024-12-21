@@ -1,5 +1,6 @@
 from .utils import extract_json
-from fastapi import FastAPI, Request, Response, Form, JSONResponse
+from fastapi import FastAPI, Request, Response, Form
+from fastapi.responses import JSONResponse
 from .llm import DuengeonMaster
 
 app = FastAPI()
