@@ -45,6 +45,7 @@ context = """
         <roll>Report dice rolls and their results.</roll>
         <npc_action>Describe actions of NPCs or enemies during interactions or combat.</npc_action>
         <player_prompt>Ask the player what they want to do next.</player_prompt>
+        <format>Strictly follow json format for all your responses</format>
     </output_format>
 </prompt>
 """
@@ -56,6 +57,6 @@ chat = client.chats.create(model="gemini-1.5-flash")
 while 1:
     user_input = input("You: ")
     global_chat_history.append({"User": user_input})
-    response = chat.send_message(global_chat_history)
+    response = chat.send_message(str(global_chat_history))
     global_chat_history.append({"Dungeon Master": response.text})
     print(response.text)
