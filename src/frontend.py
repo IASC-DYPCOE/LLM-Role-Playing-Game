@@ -17,11 +17,11 @@ def initialize_session_state():
 def send_message(message: str) -> Dict:
     """Send message to the DnD backend and get response."""
     try:
-        response = requests.post(
-            "http://localhost:8000/dnd/play",
-            json={"form_input_text": message},
-        )
-        response.raise_for_status()
+        url = "http://127.0.0.1:8000/dnd/play"
+        headers = {"accept": "application/json", "Content-Type": "application/json"}
+        data = {"input_text": message}
+
+        response = requests.post(url, headers=headers, json=data)
         return response.json()
     except requests.exceptions.RequestException as e:
         st.error(f"Error communicating with DM: {e}")
@@ -106,16 +106,6 @@ with st.form(key="message_form", clear_on_submit=True):
     submit_button = st.form_submit_button("Send")
 
     if submit_button and user_input.strip():
-        st.session_state.messages.append({"role": "user", "content": user_input})
-
         with st.spinner("The Dungeon Master is thinking..."):
             dm_response = send_message(user_input)
-
-            st.session_state.messages.append(
-                {
-                    "role": "assistant",
-                    "content": dm_response.get(
-                        "content", "Something went wrong. Please try again."
-                    ),
-                }
-            )
+            st.write(dm_response)
