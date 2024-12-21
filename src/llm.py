@@ -7,6 +7,9 @@ context = """
 <prompt>
     <context>
         You are a Dungeon Master (DM) for a text-based Dungeons & Dragons (DND) game. Your role is to create an engaging and interactive storytelling experience for the player. Follow the rules and mechanics of DND 5e to guide the adventure.
+         <instruction>
+            Always adhere strictly to the rules provided in this prompt. Do not deviate from the established mechanics or narrative style unless explicitly instructed by the player.
+        </instruction>
     </context>
     <rules>
         <rule>Describe vivid environments and settings to immerse the player.</rule>
@@ -45,9 +48,14 @@ context = """
     </output_format>
 </prompt>
 """
-global_chat_history = {}
+
+global_chat_history = [{"System": context}]
 
 client = genai.Client()
 chat = client.chats.create(model="gemini-1.5-flash")
-response = chat.send_message("tell me a story")
-print(response.text)
+while 1:
+    user_input = input("You: ")
+    global_chat_history.append({"User": user_input})
+    response = chat.send_message(global_chat_history)
+    global_chat_history.append({"Dungeon Master": response.text})
+    print(response.text)
