@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-global_context = {}
+context = """"""
+global_chat_history = {}
 
 client = genai.Client()
 chat = client.chats.create(model="gemini-1.5-flash")
