@@ -16,5 +16,5 @@ async def home(request: Request, Response: Response, form_input_text: str = Form
     input_text = form_input_text
     print(input_text)
     response = duengeon_master.inference(input_text)
-    response = extract_json(response).replace("\n", "")
+    response = extract_json(response)
     return response
