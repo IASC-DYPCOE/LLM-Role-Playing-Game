@@ -1,5 +1,5 @@
 from .utils import extract_json
-from fastapi import FastAPI, Request, Response, Form
+from fastapi import FastAPI, Request, Response, Form, JSONResponse
 from .llm import DuengeonMaster
 
 app = FastAPI()
@@ -24,4 +24,4 @@ async def home(request: Request, Response: Response, form_input_text: str = Form
     print(input_text)
     response = duengeon_master.inference(input_text)
     response = extract_json(response)
-    return response
+    return JSONResponse(content=response)
