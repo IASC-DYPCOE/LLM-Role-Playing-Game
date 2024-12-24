@@ -1,23 +1,13 @@
-import matplotlib.pyplot as plt
 import streamlit as st
-from typing import Dict
+from audio import AudioUtils
 from utils import extract_lives_remaining
-from llm import DuengeonMaster
+from llm import DungeonMaster
 
-duengeon_master = DuengeonMaster()
-
-
-def send_message(message: str) -> Dict:
-    """Send message to the DnD backend and get response."""
-    response = duengeon_master.inference(message)
-    return response
-
-
-def start_game():
-    """Start a new game and initialize the chat history."""
-    response = duengeon_master.inference()
-    return response
-
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+if "dm" not in st.session_state:
+    st.session_state.dm = DungeonMaster()
+    st.session_state.au = AudioUtils()
 
 st.set_page_config(page_title="DnD RPG Chat", page_icon="🧙🏽", layout="wide")
 
@@ -37,9 +27,21 @@ st.markdown(
     .user-message {
         background-color: #2D2D2D;
         text-align: right;
+        margin-left: 20%;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
     }
     .dm-message {
         background-color: #383838;
+        margin-right: 20%;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .chat-container {
+        margin-bottom: 20px;
+        padding: 10px;
     }
     input[type="text"] {
         background-color: #2D2D2D !important;
@@ -47,34 +49,71 @@ st.markdown(
         border-color: #4D4D4D !important;
     }
     </style>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
-st.title("🧙🏽DnD Adventure")
+st.title("🧙🏽 DnD Adventure")
+
+
+def start_new_game():
+    st.session_state.chat_history = []
+    st.session_state.dm = DungeonMaster()
+    response = st.session_state.dm.inference(st.session_state.chat_history)
+    st.session_state.chat_history.append({"role": "dm", "content": response})
+    return response
+
+
+def send_message(message: str) -> str:
+    response = st.session_state.dm.inference(st.session_state.chat_history, message)
+    st.session_state.chat_history.append({"role": "user", "content": message})
+    st.session_state.chat_history.append({"role": "dm", "content": response})
+    return response
+
 
 if st.button("Start New Game"):
     with st.spinner("Starting a new adventure..."):
-        game_response = start_game()
-        st.metric(
-            label="Lives Remaining",
-            value=extract_lives_remaining(game_response),
-            border=True,
+        game_response = start_new_game()
+
+for message in st.session_state.chat_history:
+    if message["role"] == "user":
+        st.markdown(
+            f'<div class="user-message">{message["content"]}</div>',
+            unsafe_allow_html=True,
         )
-        st.write(game_response)
+    else:
+        st.markdown(
+            f'<div class="dm-message">{message["content"]}</div>',
+            unsafe_allow_html=True,
+        )
 
 with st.form(key="message_form", clear_on_submit=True):
-    user_input = st.text_input(
-        "Your action:", key="input", placeholder="What would you like to do?"
-    )
-    submit_button = st.form_submit_button("Send")
+    col1, col2 = st.columns([4, 1])
 
+    with col1:
+        user_input = st.text_input(
+            "Your action:", key="input", placeholder="What would you like to do?"
+        )
+
+    with col2:
+        voice_button = st.button("🎤", help="Click to speak your action")
+
+    if voice_button:
+        with st.spinner("Listening..."):
+            audio_utils = AudioUtils()
+            spoken_text = audio_utils.speech_to_text_from_mic(duration=5)
+            if spoken_text:
+                st.session_state.input = spoken_text
+                user_input = spoken_text
+                st.experimental_rerun()
+
+    submit_button = st.form_submit_button("Send")
     if submit_button and user_input.strip():
         with st.spinner("The Dungeon Master is thinking..."):
             dm_response = send_message(user_input)
+            st.write(dm_response)
             st.metric(
                 label="Lives Remaining",
                 value=extract_lives_remaining(dm_response),
                 border=True,
             )
-            st.write(dm_response)
