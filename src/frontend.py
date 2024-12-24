@@ -1,6 +1,6 @@
 import streamlit as st
 from audio import AudioUtils
-from utils import extract_lives_remaining
+from utils import extract_lives_remaining, send_prompt_to_llama
 from llm import DungeonMaster
 
 if "chat_history" not in st.session_state:
@@ -96,9 +96,10 @@ with st.form(key="message_form", clear_on_submit=True):
     if submit_button and user_input.strip():
         with st.spinner("The Dungeon Master is thinking..."):
             dm_response = send_message(user_input)
+            st.write(send_prompt_to_llama(dm_response))
             st.write(dm_response)
             st.metric(
-                label="Lives Remaining",
+                label="Turns Remaining",
                 value=extract_lives_remaining(dm_response),
                 border=True,
             )
