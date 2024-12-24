@@ -2,7 +2,8 @@ import os
 from typing import Optional
 import tempfile
 import wave
-import pyaudio
+
+# import pyaudio
 import speech_recognition as sr
 from gtts import gTTS
 from pyttsx3 import init as pyttsx3_init
@@ -14,7 +15,7 @@ class AudioUtils:
         self.recognizer = sr.Recognizer()
         self.offline_engine = pyttsx3_init()
         self.CHUNK = 1024
-        self.FORMAT = pyaudio.paInt16
+        # self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
         self.RATE = 44100
 
@@ -46,43 +47,6 @@ class AudioUtils:
 
         except Exception as e:
             print(f"Error in text_to_speech_offline: {str(e)}")
-
-    def record_audio(self, output_file: str, duration: int = 5) -> Optional[str]:
-        try:
-            p = pyaudio.PyAudio()
-
-            stream = p.open(
-                format=self.FORMAT,
-                channels=self.CHANNELS,
-                rate=self.RATE,
-                input=True,
-                frames_per_buffer=self.CHUNK,
-            )
-
-            print(f"Recording for {duration} seconds...")
-            frames = []
-
-            for _ in range(0, int(self.RATE / self.CHUNK * duration)):
-                data = stream.read(self.CHUNK)
-                frames.append(data)
-
-            print("Recording finished")
-
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
-
-            with wave.open(output_file, "wb") as wf:
-                wf.setnchannels(self.CHANNELS)
-                wf.setsampwidth(p.get_sample_size(self.FORMAT))
-                wf.setframerate(self.RATE)
-                wf.writeframes(b"".join(frames))
-
-            return output_file
-
-        except Exception as e:
-            print(f"Error in record_audio: {str(e)}")
-            return None
 
     def speech_to_text_from_mic(self, duration: int = 5) -> Optional[str]:
         try:

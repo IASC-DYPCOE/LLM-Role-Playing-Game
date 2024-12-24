@@ -88,26 +88,11 @@ for message in st.session_state.chat_history:
         )
 
 with st.form(key="message_form", clear_on_submit=True):
-    col1, col2 = st.columns([4, 1])
-
-    with col1:
-        user_input = st.text_input(
-            "Your action:", key="input", placeholder="What would you like to do?"
-        )
-
-    with col2:
-        voice_button = st.button("🎤", help="Click to speak your action")
-
-    if voice_button:
-        with st.spinner("Listening..."):
-            audio_utils = AudioUtils()
-            spoken_text = audio_utils.speech_to_text_from_mic(duration=5)
-            if spoken_text:
-                st.session_state.input = spoken_text
-                user_input = spoken_text
-                st.experimental_rerun()
-
+    user_input = st.text_input(
+        "Your action:", key="input", placeholder="What would you like to do?"
+    )
     submit_button = st.form_submit_button("Send")
+
     if submit_button and user_input.strip():
         with st.spinner("The Dungeon Master is thinking..."):
             dm_response = send_message(user_input)
