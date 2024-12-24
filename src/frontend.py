@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import streamlit as st
 from typing import Dict
 from llm import DuengeonMaster
@@ -17,7 +18,38 @@ def start_game():
     return response
 
 
-st.set_page_config(page_title="DnD RPG Chat", page_icon="🎲", layout="wide")
+def draw_lives_chart(remaining_lives):
+    if remaining_lives < 0 or remaining_lives > 10:
+        st.error("Remaining lives must be between 0 and 10.")
+        return
+
+    total_lives = 10
+    used_lives = total_lives - remaining_lives
+
+    colors = ["green" if remaining_lives > 0 else "gray", "red"]
+
+    labels = ["Remaining Lives", "Used Lives"]
+
+    data = [remaining_lives, used_lives]
+
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie(
+        data,
+        labels=labels,
+        colors=colors,
+        autopct="%1.0f%%",
+        startangle=90,
+        wedgeprops={"edgecolor": "black"},
+    )
+
+    ax.add_artist(plt.Circle((0, 0), 0.7, color="white", fc="white"))
+
+    plt.title(f"Lives Remaining: {remaining_lives}/{total_lives}")
+
+    st.pyplot(fig)
+
+
+st.set_page_config(page_title="DnD RPG Chat", page_icon="🧙🏽", layout="wide")
 
 st.markdown(
     """
@@ -49,7 +81,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("🎲 DnD Adventure")
+st.title("🧙🏽DnD Adventure")
 
 if st.button("Start New Game"):
     with st.spinner("Starting a new adventure..."):

@@ -13,21 +13,15 @@ def extract_json(input_text):
     Returns:
         str: Properly formatted JSON string
     """
-    # Remove leading/trailing whitespace
     input_text = input_text.strip()
 
-    # Remove markdown code block syntax if present
     input_text = re.sub(r"```(?:json)?\n?", "", input_text)
 
-    # Handle potential trailing backticks
     input_text = input_text.strip("`")
 
     try:
-        # First try to parse as is
         json_object = json.loads(input_text)
     except json.JSONDecodeError:
-        # If that fails, try cleaning the string further
-        # Remove newlines and extra whitespace
         input_text = " ".join(input_text.split())
 
         try:
@@ -36,3 +30,13 @@ def extract_json(input_text):
             raise Exception(f"Could not parse JSON: {str(e)}")
 
     return json.dumps(json_object, ensure_ascii=False, indent=2)
+
+
+def extract_lives_remaining(text: str) -> int:
+    pattern = r"Turns remaining: (\d+)/10"
+
+    match = re.search(pattern, text)
+    if match:
+        turns = match.group(1)
+
+    return int(turns)
