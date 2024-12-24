@@ -14,13 +14,15 @@ class DuengeonMaster:
             "/home/capybara/code/ml/LLM-Role-Playing-Game/src/prompt.xml", "r"
         ) as file:
             context = file.read().replace("\n", "")
-        self.global_chat_history = [{"System": context}]
+        self.global_chat_history = [context]  
 
     def inference(self, input_text: Optional[str | None] = None):
         if input_text is None:
-            return self.chat.send_message(str(self.global_chat_history)).text
+            return self.chat.send_message(" ".join(self.global_chat_history)).text
 
-        self.global_chat_history.append({"User": input_text})
-        response = self.chat.send_message(str(self.global_chat_history))
-        self.global_chat_history.append({"Dungeon Master": response.text})
+        self.global_chat_history.append(input_text)
+        response = self.chat.send_message(" ".join(self.global_chat_history))
+        self.global_chat_history.append(response.text)
+
+        print(self.global_chat_history)
         return response.text
