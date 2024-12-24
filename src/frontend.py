@@ -1,42 +1,20 @@
 import streamlit as st
-import requests
 from typing import Dict
+from llm import DuengeonMaster
 
-
-def initialize_session_state():
-    """Initialize session state for chat messages."""
-    if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {
-                "role": "system",
-                "content": "Welcome, brave adventurer! I am your Dungeon Master. What would you like to do?",
-            }
-        ]
+duengeon_master = DuengeonMaster()
 
 
 def send_message(message: str) -> Dict:
     """Send message to the DnD backend and get response."""
-    try:
-        url = "http://127.0.0.1:8000/dnd/play"
-        headers = {"accept": "application/json", "Content-Type": "application/json"}
-        data = {"input_text": message}
-
-        response = requests.post(url, headers=headers, json=data)
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error communicating with DM: {e}")
-        return {"content": "Sorry, I encountered an error. Please try again."}
+    response = duengeon_master.inference(message)
+    return response
 
 
 def start_game():
     """Start a new game and initialize the chat history."""
-    try:
-        response = requests.get("http://localhost:8000/dnd/start")
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error starting the game: {e}")
-        return {"content": "Sorry, I encountered an error. Please try again."}
+    response = duengeon_master.inference()
+    return response
 
 
 st.set_page_config(page_title="DnD RPG Chat", page_icon="🎲", layout="wide")
@@ -71,8 +49,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-initialize_session_state()
-
 st.title("🎲 DnD Adventure")
 
 if st.button("Start New Game"):
@@ -86,18 +62,6 @@ if st.button("Start New Game"):
         # else:
         #     st.error("Failed to start the game. Please try again.")
         st.write(game_response)
-
-with st.container():
-    for msg in st.session_state.messages:
-        div_class = "user-message" if msg["role"] == "user" else "dm-message"
-        st.markdown(
-            f"""
-            <div class="message-container {div_class}">
-                {msg["content"]}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
 with st.form(key="message_form", clear_on_submit=True):
     user_input = st.text_input(

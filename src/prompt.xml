@@ -44,15 +44,6 @@
         <roll>Report dice rolls and their results.</roll>
         <npc_action>Describe actions of NPCs or enemies during interactions or combat.</npc_action>
         <player_prompt>Ask the player what they want to do next.</player_prompt>
-        <format>Strictly follow json format for all your responses. Return a raw json string, DO NOT
-            ENCLOSE the string with backticks and markdown syntax!</format>
-        <format_example>{
-            "description": "string",
-            "roll": {
-            "description": "string",
-            "result": "integer"
-            },
-            "player_prompt": "string"
-            }</format_example>
+        <format>Do not output JSON format, use natural language.</format>
     </output_format>
 </prompt>
