@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 import random
-from utils import extract_lives_remaining, send_prompt_to_llama
+from utils import extract_lives_remaining
 from llm import DungeonMaster
 
 # Session State Initialization
@@ -59,6 +59,7 @@ st.markdown(
 # Title
 st.title("🧙🏽 DnD Adventure")
 
+
 # Start a new game
 def start_new_game():
     st.session_state.chat_history = []
@@ -67,12 +68,14 @@ def start_new_game():
     st.session_state.chat_history.append({"role": "dm", "content": response})
     return response
 
+
 # Handle sending message
 def send_message(message: str) -> str:
     response = st.session_state.dm.inference(st.session_state.chat_history, message)
     st.session_state.chat_history.append({"role": "user", "content": message})
     st.session_state.chat_history.append({"role": "dm", "content": response})
     return response
+
 
 # Start Game Button
 if st.button("⚔️ Start New Game"):
@@ -84,23 +87,35 @@ chat_container = st.container()
 with chat_container:
     for message in st.session_state.chat_history:
         if message["role"] == "user":
-            st.markdown(f'<div class="user-message">🧝‍♂️ {message["content"]}</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="user-message">🧝‍♂️ {message["content"]}</div>',
+                unsafe_allow_html=True,
+            )
         else:
-            st.markdown(f'<div class="dm-message">🧙‍♂️ {message["content"]}</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="dm-message">🧙‍♂️ {message["content"]}</div>',
+                unsafe_allow_html=True,
+            )
 
 # User Input Form
 with st.form(key="message_form", clear_on_submit=True):
-    user_input = st.text_input("Your action:", key="input", placeholder="What would you like to do?")
+    user_input = st.text_input(
+        "Your action:", key="input", placeholder="What would you like to do?"
+    )
     submit_button = st.form_submit_button("Send")
 
     if submit_button and user_input.strip():
         with st.spinner("The Dungeon Master is thinking..."):
             with st.empty():  # Typing Animation
                 for _ in range(3):
-                    st.markdown('<p class="typing-animation">🧙‍♂️ The DM is thinking...</p>', unsafe_allow_html=True)
+                    st.markdown(
+                        '<p class="typing-animation">🧙‍♂️ The DM is thinking...</p>',
+                        unsafe_allow_html=True,
+                    )
                     time.sleep(0.5)
                     st.markdown("")  # Clear animation
             dm_response = send_message(user_input)
-            st.write(send_prompt_to_llama(dm_response))  # ASCII art from Llama
             st.write(dm_response)
-            st.metric(label="Turns Remaining", value=extract_lives_remaining(dm_response))
+            st.metric(
+                label="Turns Remaining", value=extract_lives_remaining(dm_response)
+            )

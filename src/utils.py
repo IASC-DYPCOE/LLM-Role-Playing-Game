@@ -40,51 +40,13 @@ def extract_lives_remaining(text: str) -> int:
         r"Turns remaining: (\d+)/5",
         r"(\d+)/5 turns remaining",
         r"You have (\d+) turns? remaining",
-        r"(\d+) turns? left"
+        r"(\d+) turns? left",
     ]
-    
+
     for pattern in patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
             return int(match.group(1))
-    
+
     # If no pattern matches, return 5 as default starting value
     return 5
-
-
-def get_windows_host():
-    import platform
-
-    if platform.system() == "Windows":
-        return "127.0.0.1"  # Use localhost directly for Windows
-    else:
-        with open("/etc/resolv.conf") as f:
-            for line in f:
-                if "nameserver" in line:
-                    return line.split()[1]
-    return None
-
-
-
-def send_prompt_to_llama(prompt, model="llama3.2:3b", temperature=0.7):
-    prompt += "\nGenerate an ascii art of the above text and nothing else."
-    windows_host = get_windows_host()
-    url = f"http://{windows_host}:11434/api/generate"
-
-    data = {"model": model, "prompt": prompt, "temperature": temperature}
-
-    try:
-        response = requests.post(url, json=data)
-        response.raise_for_status()
-
-        full_response = ""
-        for line in response.iter_lines():
-            if line:
-                json_response = json.loads(line)
-                if "response" in json_response:
-                    full_response += json_response["response"]
-
-        return full_response
-
-    except requests.exceptions.RequestException as e:
-        return f"Error: {str(e)}"
