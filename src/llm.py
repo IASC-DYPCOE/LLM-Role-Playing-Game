@@ -16,7 +16,6 @@ class DungeonMaster:
             self.context = file.read().replace("\n", "")
 
     def format_history(self, chat_history: List[Dict[str, str]]) -> str:
-        """Format chat history into a single string for the LLM."""
         formatted_messages = []
         formatted_messages.append(self.context)
 
