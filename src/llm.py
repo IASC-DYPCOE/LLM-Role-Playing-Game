@@ -12,7 +12,7 @@ class DungeonMaster:
     def __init__(self):
         self.client = genai.Client(api_key=API_KEY)
         self.chat = self.client.chats.create(model="gemini-2.0-flash")
-        with open(r"prompt.xml", "r", encoding="utf-8") as file:
+        with open(r"src/prompt.xml", "r", encoding="utf-8") as file:
             self.context = file.read().replace("\n", "")
 
     def format_history(self, chat_history: List[Dict[str, str]]) -> str:
@@ -42,9 +42,9 @@ class DungeonMaster:
         full_context += " Please end your response with [Lives remaining: X] where X is the number of lives/turns the player has left."
 
         response = self.chat.send_message(full_context).text
-        
+
         # Ensure response has lives remaining info
         if "[Lives remaining:" not in response:
             response += "\n[Lives remaining: 3]"  # Default value if not specified
-        
+
         return response
