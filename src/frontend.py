@@ -149,10 +149,37 @@ def start_new_game():
     st.session_state.chat_history.append({"role": "dm", "content": response})
     return response
 
+def typewriter_effect(text: str, placeholder) -> None:
+    """Display text with typewriter effect while preserving formatting"""
+    full_text = ""
+    # Split into paragraphs first
+    paragraphs = text.split('\n')
+    
+    for i, paragraph in enumerate(paragraphs):
+        if paragraph.strip():  # If paragraph isn't empty
+            words = paragraph.split()
+            for word in words:
+                full_text += word + " "
+                placeholder.markdown(
+                    f'<div class="message-container dm-message">🧙‍♂️ {full_text}</div>',
+                    unsafe_allow_html=True
+                )
+                time.sleep(0.1)
+        
+        # Add newline between paragraphs if it's not the last paragraph
+        if i < len(paragraphs) - 1:
+            full_text += "\n\n"
+            placeholder.markdown(
+                f'<div class="message-container dm-message">🧙‍♂️ {full_text}</div>',
+                unsafe_allow_html=True
+            )
+            time.sleep(0.1)
+
 def send_message(message: str) -> str:
     response = st.session_state.dm.inference(st.session_state.chat_history, message)
     st.session_state.chat_history.append({"role": "user", "content": message})
     st.session_state.chat_history.append({"role": "dm", "content": response})
+    st.rerun()  # Changed from experimental_rerun to rerun
     return response
 
 # Game Layout
@@ -196,7 +223,7 @@ with col2:
     # Chat Display (Moved below input)
     with chat_container:
         st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-        for message in st.session_state.chat_history:
+        for i, message in enumerate(st.session_state.chat_history[:-1]):  # All messages except the last one
             if message["role"] == "user":
                 st.markdown(
                     f'<div class="message-container user-message">🧝‍♂️ {message["content"]}</div>',
@@ -207,6 +234,19 @@ with col2:
                     f'<div class="message-container dm-message">🧙‍♂️ {message["content"]}</div>',
                     unsafe_allow_html=True,
                 )
+        
+        # Handle the last message with typewriter effect if it's from DM
+        if st.session_state.chat_history:
+            last_message = st.session_state.chat_history[-1]
+            if last_message["role"] == "user":
+                st.markdown(
+                    f'<div class="message-container user-message">🧝‍♂️ {last_message["content"]}</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                message_placeholder = st.empty()
+                typewriter_effect(last_message["content"], message_placeholder)
+        
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Stats Display (Below chat)
